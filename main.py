@@ -14,7 +14,7 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 def build_model():
     model = keras.Sequential([
         keras.layers.Flatten(),
-        keras.layers.Dense(4, activation='relu'),
+        keras.layers.Dense(10, activation='relu'),
         keras.layers.Dense(10, activation='softmax')
     ])
     return model
@@ -36,7 +36,7 @@ def main():
     model.compile(optimizer=adam_optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 
     logging.info('Starting the learning process with {}'.format(model))
-    model.fit(training_data[0], training_data[1], batch_size=16, epochs=3)
+    model.fit(training_data[0], training_data[1], batch_size=32, epochs=5)
     # Test the trained model on unknown data
     logging.info('Evaluation test running...')
     model.evaluate(test_data[0], test_data[1])
