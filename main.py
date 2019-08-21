@@ -3,7 +3,8 @@
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
-import logging
+import os
+import sys
 
 from tensorflow import keras
 
@@ -31,15 +32,37 @@ def prepare_data():
 
 def main():
     adam_optimizer = keras.optimizers.Adam(lr=0.001)
+    # Build and compile the model
     model = build_model()
-    training_data, test_data = prepare_data()
     model.compile(optimizer=adam_optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 
-    logging.info('Starting the learning process with {}'.format(model))
-    model.fit(training_data[0], training_data[1], batch_size=32, epochs=5)
+    training_data, test_data = prepare_data()
+    use_saved_model = input('Do you want to use a saved model? [y/N] ').lower() == 'y'
+    if not use_saved_model:
+        print('Starting the learning process...'.format(model))
+        model.fit(training_data[0], training_data[1], batch_size=32, epochs=5)
+    else:
+        print('Choose a file: ')
+        for base, dirs, files in os.walk('./saved_models'):
+            for file in files:
+                if file.endswith('.index'):
+                    name = file[:-6]
+                    print('\t', name)
+        chosen_file = input('\nModel name: ')
+        if not os.path.exists(os.path.join(base, chosen_file + '.index')) or not chosen_file:
+            print('ERROR: Model not found')
+            sys.exit(1)
+        model.load_weights('./saved_models/{}'.format(chosen_file))
     # Test the trained model on unknown data
-    logging.info('Evaluation test running...')
-    model.evaluate(test_data[0], test_data[1])
+    print('Running the evaluation test...')
+    _, accuracy = model.evaluate(test_data[0], test_data[1])
+    if not use_saved_model and input('Would you like to save this model? [y/N] ').lower() == 'y':
+        filename = input('File name: ')
+        model.save_weights('saved_models/{}'.format(filename), overwrite=True)
+        print('Saved {}'.format(filename))
+    model.summary()
+    print('Accuracy: {0:.2f}%'.format(accuracy * 100))
+    print('Program finished')
 
 
 if __name__ == '__main__':
