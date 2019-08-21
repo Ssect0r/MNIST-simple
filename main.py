@@ -31,6 +31,18 @@ def prepare_data():
     return (xtrain / 255, ytrain), (xtest / 255, ytest)
 
 
+def display_samples(model, training_data):
+    samples_num = int(input('How many samples would you like to see? '))
+    for i in range(samples_num):
+        rand_index = random.randint(0, len(training_data[0]))
+        prediction = model.predict(training_data[0][rand_index:rand_index+1])
+        for value, percentage in enumerate(np.round(prediction, decimals=3)[0]):
+            print('{} has {:.2f}%% confidence'.format(value, 100 * percentage))
+        print('Correct value:', training_data[1][rand_index].argmax())
+        plt.imshow(training_data[0][rand_index])
+        plt.show()
+
+
 def main():
     adam_optimizer = keras.optimizers.Adam(lr=0.001)
     # Build and compile the model
@@ -63,15 +75,7 @@ def main():
         print('Saved {}'.format(filename))
     model.summary()
     print('Accuracy: {:.2f}%'.format(accuracy * 100))
-    samples_num = int(input('How many samples would you like to see? '))
-    for i in range(samples_num):
-        rand_index = random.randint(0, len(training_data[0]))
-        prediction = model.predict(training_data[0][rand_index:rand_index+1])
-        for value, percentage in enumerate(np.round(prediction, decimals=3)[0]):
-            print('{} has {:.2f}%% confidence'.format(value, 100 * percentage))
-        print('Correct value:', training_data[1][rand_index].argmax())
-        plt.imshow(training_data[0][rand_index])
-        plt.show()
+    display_samples(model, training_data)
 
 
 if __name__ == '__main__':
