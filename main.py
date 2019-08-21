@@ -5,6 +5,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import os
 import sys
+import random
 
 from tensorflow import keras
 
@@ -61,9 +62,22 @@ def main():
         model.save_weights('saved_models/{}'.format(filename), overwrite=True)
         print('Saved {}'.format(filename))
     model.summary()
-    print('Accuracy: {0:.2f}%'.format(accuracy * 100))
-    print('Program finished')
+    print('Accuracy: {:.2f}%'.format(accuracy * 100))
+    samples_num = int(input('How many samples would you like to see? '))
+    for i in range(samples_num):
+        rand_index = random.randint(0, len(training_data[0]))
+        prediction = model.predict(training_data[0][rand_index:rand_index+1])
+        for value, percentage in enumerate(np.round(prediction, decimals=3)[0]):
+            print('{} has {:.2f}%% confidence'.format(value, 100 * percentage))
+        print('Correct value:', training_data[1][rand_index].argmax())
+        plt.imshow(training_data[0][rand_index])
+        plt.show()
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('\nProgram interrupted')
+    else:
+        print('Program finished successfully')
